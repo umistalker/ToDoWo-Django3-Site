@@ -1,3 +1,5 @@
+import smtplib
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, authenticate
 from django.contrib.auth.models import User
@@ -7,6 +9,8 @@ from .forms import TodoForm
 from .models import Todo
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+import smtplib
+import os
 
 
 def home(request):
@@ -19,9 +23,12 @@ def signupuser(request):
     else:
         if request.POST['password1'] == request.POST['password2']:
             try:
-                user = User.objects.create_user(request.POST['username'], password=request.POST['password1'])
+                username = request.POST['username']
+                print(username)
+                user = User.objects.create_user(username, password=request.POST['password1'])
                 user.save()
                 login(request, user)
+
                 return redirect('currenttodos')
             except IntegrityError:
                 return render(request, 'todo/signupuser.html',
@@ -30,6 +37,8 @@ def signupuser(request):
         else:
             return render(request, 'todo/signupuser.html',
                           {'form': UserCreationForm(), 'error': "Password did not match"})
+
+
 
 
 @login_required
